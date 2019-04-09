@@ -29,12 +29,10 @@ int main() {
   //////////////////// UNIVERSITIES ///////////////////////////////
 	FILE *fileUniversity;
   UNIVERSITY *universities;
-  int *universityCandidatesQuantity;
-  int *universityMinimumGrade;
   int universityQuantity = 0;
   int universityGradeAux = 0;
   int universityCandidatesAux = 0;
-  int i = 0, j = 0;
+  int universityCount = 0;
 
   fileUniversity = fopen("universidades.txt", "r");
 
@@ -48,24 +46,19 @@ int main() {
 
   universities = (UNIVERSITY *)malloc(universityQuantity * sizeof(UNIVERSITY));
 
-  universityCandidatesQuantity = allocateVector(universityQuantity);
-  universityMinimumGrade = allocateVector(universityQuantity);
-
   while (!feof(fileUniversity)) {
     fscanf(fileUniversity, "%d", &universityCandidatesAux);
     fscanf(fileUniversity, "%d", &universityGradeAux);
 
-    universities[i].candidatesQuantity = universityCandidatesAux; 
-    universities[i].minimumGrade = universityGradeAux;
-
-    universityCandidatesQuantity[i] = universityCandidatesAux;
-    universityMinimumGrade[i] = universityGradeAux;
-    i++;
+    universities[universityCount].candidatesQuantity = universityCandidatesAux; 
+    universities[universityCount].minimumGrade = universityGradeAux;
+    universities[universityCount].studentsAproved = allocateMatrix(universityCandidatesAux, 2);
+    universityCount++;
   }
 
-  for (int k = 0; k < i; k++){
-    printf("%d ", universities[k].candidatesQuantity);
-    printf("%d ", universities[k].minimumGrade);
+  for (int i = 0; i < universityCount; i++) {
+    printf("%d ", universities[i].candidatesQuantity);
+    printf("%d ", universities[i].minimumGrade);
     printf("\n");
   }
 
@@ -74,9 +67,6 @@ int main() {
   //////////////// STUDENTS /////////////////////////
 	FILE *fileStudent;
   STUDENT *students;
-  
-  int **studentPreferences;
-  int *studentGradesVector;
   int studentGrade = 0;
   int studentQuantity = 0;
   int studentAux = 0;
@@ -91,14 +81,8 @@ int main() {
   }
 
   fscanf(fileStudent, "%d", &studentQuantity);
-  printf("Quantity of students=%d\n", studentQuantity);
-
-  printf("Quantity of universities=%d\n", universityQuantity);
   
   students = (STUDENT *)malloc(studentQuantity * sizeof(STUDENT));
-  
-  studentPreferences = allocateMatrix(studentQuantity, universityQuantity);
-  studentGradesVector = allocateVector(studentQuantity);
 
   while(!feof(fileStudent)) {
     fscanf(fileStudent, "%d", &priorityListSize);
@@ -107,37 +91,13 @@ int main() {
     students[studentPosition].preferences = allocateVector(priorityListSize);    
     students[studentPosition].preferenceSize = priorityListSize;
     students[studentPosition].grade = studentGrade;
-
-    studentGradesVector[studentPosition] = studentGrade;
+    students[studentPosition].isAproved = 0;
 
     for (int i = 0; i < priorityListSize; i++) {
       fscanf(fileStudent, "%d", &studentAux);
       students[studentPosition].preferences[i] = studentAux;
-      printf(" TESTE = %d\n", students[studentPosition].preferences[i]);
-      studentPreferences[studentPosition][i] = studentAux;
     }
     studentPosition++;
-  }
-
-  for(int k=0; k < studentQuantity; k++) {
-    for(int l = 0; l < universityQuantity; l++) {
-      printf("%d ", studentPreferences[k][l]);
-    }
-    printf("\n");
-  }
-
-  for(int i = 0; i < 5; i++) {
-    printf("%d ", studentGradesVector[i]);
-  }
-  
-  printf("\n");
-
-  for (int i = 0; i < studentQuantity; i++) {
-    int aux = students[i].preferenceSize;
-    for (int j = 0; j < aux; j++) {
-      printf("%d ", students[i].preferences[aux]);
-    }
-    printf("\n");
   }
 
   fclose(fileStudent);
@@ -165,34 +125,25 @@ int main() {
     - Um vetor dos alunos que não entraram em nenhuma faculdade
   */
 
-  int studentMatched[studentQuantity];
-
-  for(int i = 0; i < studentQuantity; i++) {
-    studentMatched[i] = 0;
-  }
-  
-  for(int i = 0; i < studentQuantity; i++) {
-    for(int j = 0; j < universityQuantity; j++) {
-      int universitySelected = studentPreferences[i][j];
-      if (
-        studentGradesVector[i] >= universityMinimumGrade[universitySelected]
-        && universityCandidatesQuantity[universitySelected] > 0
-      ) {
-        universityCandidatesQuantity[universitySelected]--;
-        studentMatched[i] = 1;
-        studentPreferences[i][j] = -1;
-        break;
-      }
-      else if (studentGradesVector[i] >= universityMinimumGrade[universitySelected]) {
+  while(1) {
+    for(int i = 0; i < studentQuantity; i++) {
+      for(int j = 0; j < students[i].preferenceSize; j++) {
+        if(
+          students[i].grade >= universities[j].minimumGrade
+          && universities[j].candidatesQuantity > 0
+        ) {
+          students[i].isAproved = 1;
+          students[i].universityAproved = j;
+        }
 
       }
     }
+    
   }
 
 
-  free(studentGradesVector);
-  free(universityCandidatesQuantity);
-  free(universityMinimumGrade);
+  free(students);
+  free(universities);
 
   return 0;
 }

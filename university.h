@@ -4,7 +4,7 @@
 typedef struct university {
 	int minimumGrade;
 	int candidatesQuantity;
-	int *studentsAproved;
+	int **studentsAproved;
 } UNIVERSITY;
 
 #endif
