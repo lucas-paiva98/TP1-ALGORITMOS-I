@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-// #include "teste.h"
+#include "student.h"
+#include "university.h"
 
 int **allocateMatrix(int lines, int collumns) {
   int **matrix = (int **)malloc(lines * sizeof(int *));
@@ -19,15 +20,15 @@ int *allocateVector(int size) {
   return vector;
 }
 
-int findLowerGrade(int grades, int studentGrades) {
+// int findLowerGrade(int grades, int studentGrades) {
 
-  return;
-}
+//   return;
+// }
 
 int main() {
   //////////////////// UNIVERSITIES ///////////////////////////////
 	FILE *fileUniversity;
-
+  UNIVERSITY *universities;
   int *universityCandidatesQuantity;
   int *universityMinimumGrade;
   int universityQuantity = 0;
@@ -45,6 +46,8 @@ int main() {
   fscanf(fileUniversity, "%d", &universityQuantity);
   printf("Quantity of universities=%d\n", universityQuantity);
 
+  universities = (UNIVERSITY *)malloc(universityQuantity * sizeof(UNIVERSITY));
+
   universityCandidatesQuantity = allocateVector(universityQuantity);
   universityMinimumGrade = allocateVector(universityQuantity);
 
@@ -52,14 +55,17 @@ int main() {
     fscanf(fileUniversity, "%d", &universityCandidatesAux);
     fscanf(fileUniversity, "%d", &universityGradeAux);
 
+    universities[i].candidatesQuantity = universityCandidatesAux; 
+    universities[i].minimumGrade = universityGradeAux;
+
     universityCandidatesQuantity[i] = universityCandidatesAux;
     universityMinimumGrade[i] = universityGradeAux;
     i++;
   }
 
   for (int k = 0; k < i; k++){
-    printf("%d ", universityCandidatesQuantity[k]);
-    printf("%d ", universityMinimumGrade[k]);
+    printf("%d ", universities[k].candidatesQuantity);
+    printf("%d ", universities[k].minimumGrade);
     printf("\n");
   }
 
@@ -67,6 +73,7 @@ int main() {
   
   //////////////// STUDENTS /////////////////////////
 	FILE *fileStudent;
+  STUDENT *students;
   
   int **studentPreferences;
   int *studentGradesVector;
@@ -87,7 +94,9 @@ int main() {
   printf("Quantity of students=%d\n", studentQuantity);
 
   printf("Quantity of universities=%d\n", universityQuantity);
-
+  
+  students = (STUDENT *)malloc(studentQuantity * sizeof(STUDENT));
+  
   studentPreferences = allocateMatrix(studentQuantity, universityQuantity);
   studentGradesVector = allocateVector(studentQuantity);
 
@@ -95,10 +104,16 @@ int main() {
     fscanf(fileStudent, "%d", &priorityListSize);
     fscanf(fileStudent, "%d", &studentGrade);
     
+    students[studentPosition].preferences = allocateVector(priorityListSize);    
+    students[studentPosition].preferenceSize = priorityListSize;
+    students[studentPosition].grade = studentGrade;
+
     studentGradesVector[studentPosition] = studentGrade;
 
     for (int i = 0; i < priorityListSize; i++) {
       fscanf(fileStudent, "%d", &studentAux);
+      students[studentPosition].preferences[i] = studentAux;
+      printf(" TESTE = %d\n", students[studentPosition].preferences[i]);
       studentPreferences[studentPosition][i] = studentAux;
     }
     studentPosition++;
@@ -115,6 +130,16 @@ int main() {
     printf("%d ", studentGradesVector[i]);
   }
   
+  printf("\n");
+
+  for (int i = 0; i < studentQuantity; i++) {
+    int aux = students[i].preferenceSize;
+    for (int j = 0; j < aux; j++) {
+      printf("%d ", students[i].preferences[aux]);
+    }
+    printf("\n");
+  }
+
   fclose(fileStudent);
 
   /////////////////////////////////// MAIN ///////////////////////////////////
