@@ -118,6 +118,9 @@ int main() {
   Condições para a universidade trocar o aluno:
     - Não ter vagas dispoíveis
     - O aluno que deseja entrar ter a nota maior do que algum dos alunos previamente selecionados
+  
+  Funções necessárias para a implementação do algoritmo
+    - Achar a menor nota de um aluno classificado na universidade isGradeHigher
 
   Estruturas necessárias para a representação dos matchs:
     - Um vetor para representar os alunos disponíveis para seleção
@@ -125,22 +128,37 @@ int main() {
     - Um vetor dos alunos que não entraram em nenhuma faculdade
   */
 
-  while(1) {
-    for(int i = 0; i < studentQuantity; i++) {
-      for(int j = 0; j < students[i].preferenceSize; j++) {
-        if(
-          students[i].grade >= universities[j].minimumGrade
-          && universities[j].candidatesQuantity > 0
-        ) {
-          students[i].isAproved = 1;
-          students[i].universityAproved = j;
-        }
 
+  /* Enquanto o estudante não tiver aplicado em todas as suas
+     faculdades na sua lista de preferência.
+     Lembrar de verificar se o aluno está aprovado.
+  */
+
+  // Verificar se o aluno foi aprovado ou sua lista de preferências acabou
+  while(!hasStablingMatchFinished()){
+    for (int i = 0; i < studentQuantity; i++) {
+      for (int j = 0; j < students[i].preferenceSize; j++) {
+        int currentUniversity = students[i].preferences[j];
+        if (students[i].grade >= universities[currentUniversity].minimumGrade) {
+        // Pensar em uma forma melhor de montar o array/matriz de alunos aprovados
+        // Modular essa parte
+        students[i].isAproved = 1;
+        students[i].preferences[j] = -1;
+        students[i].universityAproved = currentUniversity;
+        // Adicionar o aluno aprovado no vetor da universidade
+        universities[currentUniversity-1].studentsAproved[][];
+          if (universities[currentUniversity].candidatesQuantity > 0){
+            universities[currentUniversity].candidatesQuantity--;
+          }
+          else {
+            // Remover o estudante com menor nota
+            // Atualizar a minimumGrade
+          }
+        }
       }
     }
-    
+    }
   }
-
 
   free(students);
   free(universities);
