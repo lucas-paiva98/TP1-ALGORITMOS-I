@@ -20,10 +20,34 @@ int *allocateVector(int size) {
   return vector;
 }
 
-// int findLowerGrade(int grades, int studentGrades) {
+void updateStudentLowerGrade(UNIVERSITY *university, int currentUniversity) {
+  int collumn = university[currentUniversity].candidatesQuantity;
+  int minimumGrade = university[currentUniversity].studentsAproved[0][1];
 
-//   return;
-// }
+  // Achar a menor nota e seu respectivo aluno
+  for (int i = 1; i < collumn; i++) {
+    if (university[currentUniversity].studentsAproved[i][1] < minimumGrade) {
+      minimumGrade = university[currentUniversity].studentsAproved[i][1];
+    }
+  }
+}
+
+// Verificar o index do estudante para mapear a posição no vetor
+void addStudentToUniversity(
+  STUDENT *students,
+  UNIVERSITY *universities,
+  int currentStudent,
+  int currentUniversity
+  ) {
+  int freePosition = universities[currentUniversity-1].nextFreePosition;
+  students[currentStudent]->isAproved = 1;
+  students[currentStudent]->preferences[j] = -1;
+  students[currentStudent]->universityAproved = currentUniversity;
+  // Adicionar o aluno aprovado no vetor da universidade
+  universities[currentUniversity-1]->studentsAproved[freePosition][0] = currentStudent;
+  universities[currentUniversity-1]->studentsAproved[freePosition][1] = students[currentStudent].grade;
+  updateStudentLowerGrade(&universities, currentUniversity);
+}
 
 int main() {
   //////////////////// UNIVERSITIES ///////////////////////////////
@@ -53,6 +77,7 @@ int main() {
     universities[universityCount].candidatesQuantity = universityCandidatesAux; 
     universities[universityCount].minimumGrade = universityGradeAux;
     universities[universityCount].studentsAproved = allocateMatrix(universityCandidatesAux, 2);
+    universities[universityCount].nextFreePosition = 0;
     universityCount++;
   }
 
@@ -135,28 +160,28 @@ int main() {
   */
 
   // Verificar se o aluno foi aprovado ou sua lista de preferências acabou
+  // Modular essa parte
   while(!hasStablingMatchFinished()){
-    for (int i = 0; i < studentQuantity; i++) {
-      for (int j = 0; j < students[i].preferenceSize; j++) {
-        int currentUniversity = students[i].preferences[j];
-        if (students[i].grade >= universities[currentUniversity].minimumGrade) {
+    for (int currentStudent = 0; currentStudent < studentQuantity; currentStudent++) {
+      for (int j = 0; j < students[currentStudent].preferenceSize; j++) {
+        int currentUniversity = students[currentStudent].preferences[j];
+        if (students[currentStudent].grade >= universities[currentUniversity].minimumGrade) {
         // Pensar em uma forma melhor de montar o array/matriz de alunos aprovados
-        // Modular essa parte
-        students[i].isAproved = 1;
-        students[i].preferences[j] = -1;
-        students[i].universityAproved = currentUniversity;
-        // Adicionar o aluno aprovado no vetor da universidade
-        universities[currentUniversity-1].studentsAproved[][];
-          if (universities[currentUniversity].candidatesQuantity > 0){
+          if (universities[currentUniversity].candidatesQuantity > 0) {
+            addStudentToUniversity();
             universities[currentUniversity].candidatesQuantity--;
           }
-          else {
-            // Remover o estudante com menor nota
-            // Atualizar a minimumGrade
+          else {            
+            if(currentStudent < universities[currentUniversity].lowestGradeStudent) {
+              addStudentToUniversity(&students, &universities, currentStudent, currentUniversity);
+              // Remover o aluno de menor nota
+              // Atualizar a menor nota dos aprovados e o aluno de menor nota
+              removeStudentFromUniversity();
+            }
           }
+          break;
         }
       }
-    }
     }
   }
 
