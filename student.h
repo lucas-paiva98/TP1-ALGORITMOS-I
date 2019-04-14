@@ -1,7 +1,7 @@
 #ifndef _STUDENT
 #define _STUDENT
 
-typedef struct student {
+typedef struct {
 	int *preferences;
 	int grade;
 	int preferenceSize;

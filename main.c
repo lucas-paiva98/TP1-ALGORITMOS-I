@@ -20,33 +20,77 @@ int *allocateVector(int size) {
   return vector;
 }
 
+void addStudentToUniversity(
+ STUDENT *students,
+ UNIVERSITY *universities,
+ int currentStudent,
+ int currentUniversity,
+ int j) {
+  int freePosition = universities[currentUniversity].nextFreePosition;
+  universities[currentUniversity].studentsAproved[freePosition][0] = currentStudent;
+  universities[currentUniversity].studentsAproved[freePosition][1] = students[currentStudent].grade;
+  students[currentStudent].isAproved = 1;
+  students[currentStudent].preferences[j] = -1;
+  students[currentStudent].universityAproved = currentUniversity;
+ }
+
 void updateStudentLowerGrade(UNIVERSITY *university, int currentUniversity) {
-  int collumn = university[currentUniversity].candidatesQuantity;
-  int minimumGrade = university[currentUniversity].studentsAproved[0][1];
+  int collumn = university[currentUniversity].candidatesQuantityTotal;
+  int newMinimumGrade = university[currentUniversity].studentsAproved[0][1];
+  int newMinimumGradeStudent = university[currentUniversity].lowestGradeStudent;
 
   // Achar a menor nota e seu respectivo aluno
-  for (int i = 1; i < collumn; i++) {
-    if (university[currentUniversity].studentsAproved[i][1] < minimumGrade) {
-      minimumGrade = university[currentUniversity].studentsAproved[i][1];
+  for (int i = 1; i <= collumn; i++) {
+    if (university[currentUniversity].studentsAproved[i][1] < newMinimumGrade) {
+      newMinimumGrade = university[currentUniversity].studentsAproved[i][1];
+      newMinimumGradeStudent = university[currentUniversity].studentsAproved[i][0];
+    }
+  }
+  university[currentUniversity].minimumGrade = newMinimumGrade;
+  university[currentUniversity].lowestGradeStudent = newMinimumGradeStudent;
+}
+
+void removeStudentFromUniversity(UNIVERSITY *university, STUDENT *students, int currentUniversity) {
+  int lowestGradeStudent = university[currentUniversity].lowestGradeStudent;
+  for (int i = 0; i < university[currentUniversity].candidatesQuantityTotal; i++){
+    int studentPosition = university[currentUniversity].studentsAproved[i][0];
+    printf("Remove: %d\n", lowestGradeStudent);
+     if (university[currentUniversity].studentsAproved[i][0] == lowestGradeStudent){
+      university[currentUniversity].studentsAproved[i][0] = -1;
+      university[currentUniversity].studentsAproved[i][1] = -1;
+      university[currentUniversity].nextFreePosition = i;
+      students[studentPosition].isAproved = 0;
+      students[studentPosition].universityAproved = 0;
+      break;
     }
   }
 }
 
-// Verificar o index do estudante para mapear a posição no vetor
-void addStudentToUniversity(
-  STUDENT *students,
-  UNIVERSITY *universities,
-  int currentStudent,
-  int currentUniversity
-  ) {
-  int freePosition = universities[currentUniversity-1].nextFreePosition;
-  students[currentStudent]->isAproved = 1;
-  students[currentStudent]->preferences[j] = -1;
-  students[currentStudent]->universityAproved = currentUniversity;
-  // Adicionar o aluno aprovado no vetor da universidade
-  universities[currentUniversity-1]->studentsAproved[freePosition][0] = currentStudent;
-  universities[currentUniversity-1]->studentsAproved[freePosition][1] = students[currentStudent].grade;
-  updateStudentLowerGrade(&universities, currentUniversity);
+int hasStablingMatchFinished(STUDENT *students, int studentQuantity) {
+  int stableMatch = 0;
+  int countUniversity = 0;
+  for (int i = 1; i <= studentQuantity; i++) {
+    if (students[i].isAproved) {
+      stableMatch++;
+    } else {
+        for (int j = 0; j < students[i].preferenceSize; j++) {
+          if (students[i].preferences[j] == -1) {
+            countUniversity++;
+          }
+        }
+        if (countUniversity == students[i].preferenceSize) {
+          stableMatch++;
+        }
+        countUniversity = 0;
+    }
+  }
+  printf("STABLE MATCH %d / %d\n", stableMatch, studentQuantity);
+  if (stableMatch == studentQuantity) {
+    return 1;
+  } else {
+    return 0;
+  }
+  
 }
 
 int main() {
@@ -56,7 +100,7 @@ int main() {
   int universityQuantity = 0;
   int universityGradeAux = 0;
   int universityCandidatesAux = 0;
-  int universityCount = 0;
+  int universityCount = 1;
 
   fileUniversity = fopen("universidades.txt", "r");
 
@@ -68,20 +112,22 @@ int main() {
   fscanf(fileUniversity, "%d", &universityQuantity);
   printf("Quantity of universities=%d\n", universityQuantity);
 
-  universities = (UNIVERSITY *)malloc(universityQuantity * sizeof(UNIVERSITY));
+  universities = (UNIVERSITY *)malloc((universityQuantity + 1) * sizeof(UNIVERSITY));
 
   while (!feof(fileUniversity)) {
     fscanf(fileUniversity, "%d", &universityCandidatesAux);
     fscanf(fileUniversity, "%d", &universityGradeAux);
-
-    universities[universityCount].candidatesQuantity = universityCandidatesAux; 
+    
+    universities[universityCount].lowestGradeStudent = -1;
+    universities[universityCount].candidatesQuantity = universityCandidatesAux;
+    universities[universityCount].candidatesQuantityTotal = universityCandidatesAux;
     universities[universityCount].minimumGrade = universityGradeAux;
     universities[universityCount].studentsAproved = allocateMatrix(universityCandidatesAux, 2);
     universities[universityCount].nextFreePosition = 0;
     universityCount++;
   }
 
-  for (int i = 0; i < universityCount; i++) {
+  for (int i = 1; i < universityCount; i++) {
     printf("%d ", universities[i].candidatesQuantity);
     printf("%d ", universities[i].minimumGrade);
     printf("\n");
@@ -96,7 +142,7 @@ int main() {
   int studentQuantity = 0;
   int studentAux = 0;
   int priorityListSize = 0;
-  int studentPosition = 0;
+  int studentPosition = 1;
 
   fileStudent = fopen("candidatos.txt", "r");
 
@@ -107,7 +153,7 @@ int main() {
 
   fscanf(fileStudent, "%d", &studentQuantity);
   
-  students = (STUDENT *)malloc(studentQuantity * sizeof(STUDENT));
+  students = (STUDENT *)malloc((studentQuantity + 1) * sizeof(STUDENT));
 
   while(!feof(fileStudent)) {
     fscanf(fileStudent, "%d", &priorityListSize);
@@ -124,7 +170,7 @@ int main() {
     }
     studentPosition++;
   }
-
+  
   fclose(fileStudent);
 
   /////////////////////////////////// MAIN ///////////////////////////////////
@@ -160,33 +206,72 @@ int main() {
   */
 
   // Verificar se o aluno foi aprovado ou sua lista de preferências acabou
-  // Modular essa parte
-  while(!hasStablingMatchFinished()){
-    for (int currentStudent = 0; currentStudent < studentQuantity; currentStudent++) {
+  // Modular essa parte !hasStablingMatchFinished(students, studentQuantity)
+  while(!hasStablingMatchFinished(students, studentQuantity)){
+    for (int currentStudent = 1; currentStudent <= studentQuantity; currentStudent++) {
       for (int j = 0; j < students[currentStudent].preferenceSize; j++) {
         int currentUniversity = students[currentStudent].preferences[j];
-        if (students[currentStudent].grade >= universities[currentUniversity].minimumGrade) {
-        // Pensar em uma forma melhor de montar o array/matriz de alunos aprovados
-          if (universities[currentUniversity].candidatesQuantity > 0) {
-            addStudentToUniversity();
-            universities[currentUniversity].candidatesQuantity--;
-          }
-          else {            
-            if(currentStudent < universities[currentUniversity].lowestGradeStudent) {
-              addStudentToUniversity(&students, &universities, currentStudent, currentUniversity);
-              // Remover o aluno de menor nota
-              // Atualizar a menor nota dos aprovados e o aluno de menor nota
-              removeStudentFromUniversity();
+        if (currentUniversity != -1) {
+          if (students[currentStudent].grade >= universities[currentUniversity].minimumGrade) {
+            if (universities[currentUniversity].candidatesQuantity > 0) {
+              universities[currentUniversity].candidatesQuantity--;
+              addStudentToUniversity(students, universities, currentStudent, currentUniversity, j);
+              updateStudentLowerGrade(universities, currentUniversity);
             }
+            else {            
+              // if(currentStudent < universities[currentUniversity].lowestGradeStudent) {
+              removeStudentFromUniversity(universities, students, currentUniversity);
+              addStudentToUniversity(students, universities, currentStudent, currentUniversity, j);
+              updateStudentLowerGrade(universities, currentUniversity);
+              // }
+            }
+            if (universities[currentUniversity].candidatesQuantity > 0) {
+              universities[currentUniversity].nextFreePosition++;
+            }
+            break;
+          } else {
+            students[currentStudent].preferences[j] = -1;
           }
-          break;
         }
       }
     }
   }
 
-  free(students);
-  free(universities);
 
-  return 0;
+  for (int i = 1; i <= studentQuantity; i++) {
+    // for (int j = 0; j < students[i].preferenceSize; j++) {
+    //   printf("Student[%d] prefe: %d\n", i, students[i].preferences[j]);
+    // }
+    printf("Student[%d] prefe: %d\n", i, students[i].isAproved);
+    printf("\n");
+  }
+
+  for(int i = 1; i <= universityQuantity; i++){
+    printf("University[%d]: \n", i);
+    for(int j = 0; j < universities[i].candidatesQuantityTotal; j++) {
+      // printf("Student[%d] = %d ", j, universities[i].studentsAproved[j][0]);
+      // printf("Grade = %d ", universities[i].studentsAproved[j][1]);
+      // printf("Position = %d ", universities[i].nextFreePosition);
+      printf("minimumGrade = %d ", universities[i].minimumGrade);
+      printf("\n");
+    }
+    printf("\n");
+  }
+
+  for (int i = 1; i <= universityQuantity; i++)
+  {
+    printf("University[%d]: \n", i);
+    for (int j = 0; j < universities[i].candidatesQuantityTotal; j++)
+    {
+      printf("Student[%d] ", universities[i].studentsAproved[j][0]);
+      printf("Grade = %d ", universities[i].studentsAproved[j][1]);
+      printf("\n");
+    }
+    printf("\n");
+    }
+
+    free(students);
+    free(universities);
+
+    return 0;
 }
