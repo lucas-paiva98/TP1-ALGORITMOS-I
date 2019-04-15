@@ -8,6 +8,7 @@ typedef struct {
 	int **studentsAproved;
 	int nextFreePosition;
 	int lowestGradeStudent;
+	int gradeHasChanged;
 }UNIVERSITY;
 
 #endif

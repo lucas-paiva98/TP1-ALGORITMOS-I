@@ -32,6 +32,7 @@ void updateStudentLowerGrade(UNIVERSITY *university, int currentUniversity) {
       if (university[currentUniversity].studentsAproved[i][1] < newMinimumGrade) {
         newMinimumGrade = university[currentUniversity].studentsAproved[i][1];
         newMinimumGradeStudent = university[currentUniversity].studentsAproved[i][0];
+        university[currentUniversity].gradeHasChanged = 1;
       }
     }
   } 
@@ -67,6 +68,11 @@ void removeStudentFromUniversity(UNIVERSITY *university, STUDENT *students, int 
       break;
     }
   }
+}
+
+void changeLowestStudent(STUDENT *students, UNIVERSITY *universities, int currentStudent, int currentUniversity) {
+  removeStudentFromUniversity(universities, students, currentUniversity);
+  addStudentToUniversity(students, universities, currentStudent, currentUniversity);
 }
 
 int hasStablingMatchFinished(STUDENT *students, int studentQuantity) {
@@ -119,12 +125,13 @@ int main() {
     fscanf(fileUniversity, "%d", &universityCandidatesAux);
     fscanf(fileUniversity, "%d", &universityGradeAux);
     
-    universities[universityCount].lowestGradeStudent = -1;
+    universities[universityCount].lowestGradeStudent = 0;
     universities[universityCount].candidatesQuantity = universityCandidatesAux;
     universities[universityCount].candidatesQuantityTotal = universityCandidatesAux;
     universities[universityCount].minimumGrade = universityGradeAux;
     universities[universityCount].studentsAproved = allocateMatrix(universityCandidatesAux, 2);
     universities[universityCount].nextFreePosition = 0;
+    universities[universityCount].gradeHasChanged = 0;
     universityCount++;
   }
 
@@ -190,11 +197,17 @@ int main() {
               addStudentToUniversity(students, universities, currentStudent, currentUniversity);                 
             }
             else {            
-              // if(currentStudent < universities[currentUniversity].lowestGradeStudent) {
               printf("Student2:%d\n", currentStudent);
-              removeStudentFromUniversity(universities, students, currentUniversity);
-              addStudentToUniversity(students, universities, currentStudent, currentUniversity);
-              // }
+              if (students[currentStudent].grade == universities[currentUniversity].minimumGrade) {
+                if(universities[currentUniversity].gradeHasChanged
+                  && currentStudent < universities[currentUniversity].lowestGradeStudent
+                  ) {
+                  changeLowestStudent(students, universities, currentStudent, currentUniversity);
+                }
+              } else {
+                  changeLowestStudent(students, universities, currentStudent, currentUniversity);
+              }
+
             }
             if (universities[currentUniversity].candidatesQuantity > 0) {
               universities[currentUniversity].nextFreePosition++;
@@ -208,6 +221,9 @@ int main() {
         // break;
     }
   }
+
+                // if(currentStudent < universities[currentUniversity].lowestGradeStudent) {
+              // }
 
   //  for (int i = 1; i <= studentQuantity; i++) {
   //   for (int j = 0; j < students[i].preferenceSize; j++) {
