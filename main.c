@@ -21,18 +21,6 @@ int *allocateVector(int size) {
   return vector;
 }
 
-void addStudentToUniversity(
- STUDENT *students,
- UNIVERSITY *universities,
- int currentStudent,
- int currentUniversity) {
-  int freePosition = universities[currentUniversity].nextFreePosition;
-  universities[currentUniversity].studentsAproved[freePosition][0] = currentStudent;
-  universities[currentUniversity].studentsAproved[freePosition][1] = students[currentStudent].grade;
-  students[currentStudent].isAproved = 1;
-  students[currentStudent].universityAproved = currentUniversity;
- }
-
 void updateStudentLowerGrade(UNIVERSITY *university, int currentUniversity) {
   int lines = university[currentUniversity].candidatesQuantityTotal;
   int newMinimumGrade = university[currentUniversity].studentsAproved[0][1];
@@ -52,6 +40,19 @@ void updateStudentLowerGrade(UNIVERSITY *university, int currentUniversity) {
   university[currentUniversity].lowestGradeStudent = newMinimumGradeStudent;
   // printf("University[%d] = Student[%d]: %d \n", currentUniversity, newMinimumGradeStudent, newMinimumGrade);
 }
+
+void addStudentToUniversity(
+ STUDENT *students,
+ UNIVERSITY *universities,
+ int currentStudent,
+ int currentUniversity) {
+  int freePosition = universities[currentUniversity].nextFreePosition;
+  universities[currentUniversity].studentsAproved[freePosition][0] = currentStudent;
+  universities[currentUniversity].studentsAproved[freePosition][1] = students[currentStudent].grade;
+  students[currentStudent].isAproved = 1;
+  students[currentStudent].universityAproved = currentUniversity;
+  updateStudentLowerGrade(universities, currentUniversity);
+ }
 
 void removeStudentFromUniversity(UNIVERSITY *university, STUDENT *students, int currentUniversity) {
   int lowestGradeStudent = university[currentUniversity].lowestGradeStudent;
@@ -174,9 +175,6 @@ int main() {
 
   fclose(fileStudent);
 
-    printf("minimumGrade:%d\n", universities[1].minimumGrade);
-    printf("minimumGrade:%d\n", universities[1].minimumGrade);
-
   /////////////////////////////////// MAIN ///////////////////////////////////
   // Verificar se o aluno foi aprovado ou sua lista de preferências acabou
   // Modular essa parte !hasStablingMatchFinished(students, studentQuantity)
@@ -184,16 +182,16 @@ int main() {
     for (int currentStudent = 1; currentStudent <= studentQuantity; currentStudent++) {
       for (int j = 0; j < students[currentStudent].preferenceSize; j++) {
         int currentUniversity = students[currentStudent].preferences[j];
-        if (currentUniversity != -1) { 
-          printf("eNTRADA\n");  
-          printf("STUDENT: %d\n", universities[currentUniversity].minimumGrade);    
+        if (currentUniversity != -1) {  
           if (students[currentStudent].grade >= universities[currentUniversity].minimumGrade) {   
-            if (universities[currentUniversity].candidatesQuantity > 0) {              
+            if (universities[currentUniversity].candidatesQuantity > 0) { 
+              printf("Student1:%d\n", currentStudent);
               universities[currentUniversity].candidatesQuantity--;
               addStudentToUniversity(students, universities, currentStudent, currentUniversity);                 
             }
             else {            
               // if(currentStudent < universities[currentUniversity].lowestGradeStudent) {
+              printf("Student2:%d\n", currentStudent);
               removeStudentFromUniversity(universities, students, currentUniversity);
               addStudentToUniversity(students, universities, currentStudent, currentUniversity);
               // }
@@ -203,10 +201,11 @@ int main() {
             }
             break;
           }
-          updateStudentLowerGrade(universities, currentUniversity);
           students[currentStudent].preferences[j] = -1;
         }
       }
+      // if (currentStudent == 24)
+        // break;
     }
   }
 
@@ -244,7 +243,7 @@ int main() {
   for (int i = 1; i <= universityQuantity; i++) {
     for (int j = 0; j < universities[i].candidatesQuantityTotal; j++) {
       if(universities[i].studentsAproved[j][0] != -1) {
-        printf("%d %d\n", i, universities[i].studentsAproved[j][0]);
+        printf("%d %d\n", universities[i].studentsAproved[j][0], i);
       }
     }
   }
