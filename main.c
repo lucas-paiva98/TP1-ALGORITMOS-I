@@ -93,6 +93,8 @@ int hasStablingMatchFinished(STUDENT *students, int studentQuantity) {
         countUniversity = 0;
     }
   }
+  printf("STABLE MATCH:%d\n",stableMatch);
+
   if (stableMatch == studentQuantity) {
     return 1;
   } else {
@@ -189,16 +191,15 @@ int main() {
     for (int currentStudent = 1; currentStudent <= studentQuantity; currentStudent++) {
       for (int j = 0; j < students[currentStudent].preferenceSize; j++) {
         int currentUniversity = students[currentStudent].preferences[j];
-        if (currentUniversity != -1) {  
-          if (students[currentStudent].grade >= universities[currentUniversity].minimumGrade) {   
+        if (currentUniversity != -1) {
+          if (students[currentStudent].grade >= universities[currentUniversity].minimumGrade) {
             if (universities[currentUniversity].candidatesQuantity > 0) { 
-              printf("Student1:%d\n", currentStudent);
               universities[currentUniversity].candidatesQuantity--;
               addStudentToUniversity(students, universities, currentStudent, currentUniversity);                 
             }
             else {            
-              printf("Student2:%d\n", currentStudent);
               if (students[currentStudent].grade == universities[currentUniversity].minimumGrade) {
+
                 if(universities[currentUniversity].gradeHasChanged
                   && currentStudent < universities[currentUniversity].lowestGradeStudent
                   ) {
@@ -214,16 +215,26 @@ int main() {
             }
             break;
           }
-          students[currentStudent].preferences[j] = -1;
+          students[currentStudent].preferences[j] = -1;  
         }
       }
-      // if (currentStudent == 24)
-        // break;
+      printf("currentStudent%d\n", currentStudent);
+      printf("Grupos com alocacao\n");
+      for (int i = 1; i <= studentQuantity; i++) {
+        if(students[i].isAproved) {
+          printf("%d %d\n", i, students[i].universityAproved);
+        }
+      }
+
+      // printf("currentStudent%d\n", currentStudent);
+  // for (int i = 1; i <= studentQuantity; i++) {
+  //   for (int j = 0; j < students[i].preferenceSize; j++) {
+  //     printf("Student[%d] prefe: %d\n", i, students[i].preferences[j]);
+  //   }
+  //   printf("\n");
+  // }
     }
   }
-
-                // if(currentStudent < universities[currentUniversity].lowestGradeStudent) {
-              // }
 
   //  for (int i = 1; i <= studentQuantity; i++) {
   //   for (int j = 0; j < students[i].preferenceSize; j++) {
@@ -245,22 +256,36 @@ int main() {
   //   printf("\n");
   // }
 
-  for (int i = 1; i <= universityQuantity; i++) {
-    printf("University[%d]: \n", i);
-    for (int j = 0; j < universities[i].candidatesQuantityTotal; j++) {
-      printf("Student[%d] ", universities[i].studentsAproved[j][0]);
-      printf("Grade = %d ", universities[i].studentsAproved[j][1]);
-      printf("\n");
-    }
-    printf("\n");
-  }
+  // for (int i = 1; i <= universityQuantity; i++) {
+  //   printf("University[%d]: \n", i);
+  //   for (int j = 0; j < universities[i].candidatesQuantityTotal; j++) {
+  //     printf("Student[%d] ", universities[i].studentsAproved[j][0]);
+  //     printf("Grade = %d ", universities[i].studentsAproved[j][1]);
+  //     printf("\n");
+  //   }
+  //   printf("\n");
+  // }
+
+  // printf("Grupos com alocacao\n");
+  // for (int i = 1; i <= universityQuantity; i++) {
+  //   for (int j = 0; j < universities[i].candidatesQuantityTotal; j++) {
+  //     if(universities[i].studentsAproved[j][0] != -1) {
+  //       printf("%d %d\n", universities[i].studentsAproved[j][0], i);
+  //     }
+  //   }
+  // }
 
   printf("Grupos com alocacao\n");
-  for (int i = 1; i <= universityQuantity; i++) {
-    for (int j = 0; j < universities[i].candidatesQuantityTotal; j++) {
-      if(universities[i].studentsAproved[j][0] != -1) {
-        printf("%d %d\n", universities[i].studentsAproved[j][0], i);
-      }
+  for (int i = 1; i <= studentQuantity; i++) {
+    if(students[i].isAproved) {
+      printf("%d %d\n", i, students[i].universityAproved);
+    }
+  }
+
+  printf("Candidatos nao alocados\n");
+  for (int i = 1; i <= studentQuantity; i++) {
+    if(!students[i].isAproved) {
+      printf("%d\n", i);
     }
   }
     free(students);
