@@ -35,7 +35,13 @@ void updateStudentLowerGrade(UNIVERSITY *university, int currentUniversity) {
         university[currentUniversity].gradeHasChanged = 1;
       }
     }
-  } 
+  } else {
+    if (university[currentUniversity].studentsAproved[0][1] <= newMinimumGrade) {
+        newMinimumGrade = university[currentUniversity].studentsAproved[0][1];
+        newMinimumGradeStudent = university[currentUniversity].studentsAproved[0][0];
+        university[currentUniversity].gradeHasChanged = 1;
+      }
+  }
     
   university[currentUniversity].minimumGrade = newMinimumGrade;
   university[currentUniversity].lowestGradeStudent = newMinimumGradeStudent;
@@ -185,46 +191,44 @@ int main() {
   fclose(fileStudent);
 
   /////////////////////////////////// MAIN ///////////////////////////////////
-  // Verificar se o aluno foi aprovado ou sua lista de preferências acabou
-  // Modular essa parte !hasStablingMatchFinished(students, studentQuantity)
   while(!hasStablingMatchFinished(students, studentQuantity)){
     for (int currentStudent = 1; currentStudent <= studentQuantity; currentStudent++) {
       for (int j = 0; j < students[currentStudent].preferenceSize; j++) {
         int currentUniversity = students[currentStudent].preferences[j];
-        if (currentUniversity != -1) {
+        if (currentUniversity != -1 && !students[currentStudent].isAproved) {
+          students[currentStudent].preferences[j] = -1;
           if (students[currentStudent].grade >= universities[currentUniversity].minimumGrade) {
-            if (universities[currentUniversity].candidatesQuantity > 0) { 
+            if (universities[currentUniversity].candidatesQuantity > 0) {
               universities[currentUniversity].candidatesQuantity--;
               addStudentToUniversity(students, universities, currentStudent, currentUniversity);                 
             }
             else {            
               if (students[currentStudent].grade == universities[currentUniversity].minimumGrade) {
-
                 if(universities[currentUniversity].gradeHasChanged
                   && currentStudent < universities[currentUniversity].lowestGradeStudent
                   ) {
                   changeLowestStudent(students, universities, currentStudent, currentUniversity);
+                  break;
                 }
               } else {
                   changeLowestStudent(students, universities, currentStudent, currentUniversity);
+                  break;
               }
-
             }
             if (universities[currentUniversity].candidatesQuantity > 0) {
               universities[currentUniversity].nextFreePosition++;
             }
             break;
-          }
-          students[currentStudent].preferences[j] = -1;  
+          } 
         }
       }
-      printf("currentStudent%d\n", currentStudent);
-      printf("Grupos com alocacao\n");
-      for (int i = 1; i <= studentQuantity; i++) {
-        if(students[i].isAproved) {
-          printf("%d %d\n", i, students[i].universityAproved);
-        }
-      }
+      // printf("currentStudent%d\n", currentStudent);
+      // printf("Grupos com alocacao\n");
+      // for (int i = 1; i <= studentQuantity; i++) {
+      //   if(students[i].isAproved) {
+      //     printf("%d %d\n", i, students[i].universityAproved);
+      //   }
+      // }
 
       // printf("currentStudent%d\n", currentStudent);
   // for (int i = 1; i <= studentQuantity; i++) {
@@ -236,44 +240,6 @@ int main() {
     }
   }
 
-  //  for (int i = 1; i <= studentQuantity; i++) {
-  //   for (int j = 0; j < students[i].preferenceSize; j++) {
-  //     printf("Student[%d] prefe: %d\n", i, students[i].preferences[j]);
-  //   }
-  //   printf("Student[%d] isAproved: %d\n", i, students[i].isAproved);
-  //   printf("\n");
-  // }
-
-  // for(int i = 1; i <= universityQuantity; i++){
-  //   printf("University[%d]: \n", i);
-  //   for(int j = 0; j < universities[i].candidatesQuantityTotal; j++) {
-  //     // printf("Student[%d] = %d ", j, universities[i].studentsAproved[j][0]);
-  //     // printf("Grade = %d ", universities[i].studentsAproved[j][1]);
-  //     // printf("Position = %d ", universities[i].nextFreePosition);
-  //     printf("minimumGrade = %d ", universities[i].minimumGrade);
-  //     printf("\n");
-  //   }
-  //   printf("\n");
-  // }
-
-  // for (int i = 1; i <= universityQuantity; i++) {
-  //   printf("University[%d]: \n", i);
-  //   for (int j = 0; j < universities[i].candidatesQuantityTotal; j++) {
-  //     printf("Student[%d] ", universities[i].studentsAproved[j][0]);
-  //     printf("Grade = %d ", universities[i].studentsAproved[j][1]);
-  //     printf("\n");
-  //   }
-  //   printf("\n");
-  // }
-
-  // printf("Grupos com alocacao\n");
-  // for (int i = 1; i <= universityQuantity; i++) {
-  //   for (int j = 0; j < universities[i].candidatesQuantityTotal; j++) {
-  //     if(universities[i].studentsAproved[j][0] != -1) {
-  //       printf("%d %d\n", universities[i].studentsAproved[j][0], i);
-  //     }
-  //   }
-  // }
 
   printf("Grupos com alocacao\n");
   for (int i = 1; i <= studentQuantity; i++) {
