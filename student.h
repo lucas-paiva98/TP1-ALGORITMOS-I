@@ -5,8 +5,8 @@ typedef struct {
 	int *preferences;
 	int grade;
 	int preferenceSize;
-	int isAproved;
-	int universityAproved;
+	int isApproved;
+	int universityApproved;
 }STUDENT;
 
 #endif
