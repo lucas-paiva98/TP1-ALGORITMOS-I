@@ -9,6 +9,7 @@ typedef struct {
 	int nextFreePosition;
 	int lowestGradeStudent;
 	int gradeHasChanged;
+	int positionLowest;
 }UNIVERSITY;
 
 #endif
