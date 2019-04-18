@@ -94,9 +94,6 @@ int hasStablingMatchFinished(STUDENT *students, int studentQuantity) {
 }
 
 int main(int argc, char *argv[]) {
-
-  for(int cont=0; cont < argc; cont++)
-    printf("%d Parametro: %s\n", cont, argv[cont]);
   //////////////////// UNIVERSITIES ///////////////////////////////
 	FILE *fileUniversity;
   UNIVERSITY *universities;
